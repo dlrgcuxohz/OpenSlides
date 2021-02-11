@@ -1,0 +1,8 @@
+@import './assets/styles/color-palettes/dlrgjugend-flamingo';
+@import './assets/styles/color-palettes/dlrgjugend-saphir';
+
+$dlrgjugend-primary: mat-palette($dlrgjugend-saphir);
+$dlrgjugend-accent: mat-palette($dlrgjugend-flamingo);
+$dlrgjugend-warn: mat-palette($dlrgjugend-flamingo);
+
+$dlrgjugend-light: mat-light-theme($dlrgjugend-primary, $dlrgjugend-accent, $dlrgjugend-warn);
