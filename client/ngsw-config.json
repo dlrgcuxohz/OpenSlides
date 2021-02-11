@@ -10,7 +10,7 @@
                     "/index.html",
                     "/*.css",
                     "/*.js",
-                    "/fira-sans*",
+                    "/*.woff",
                     "/Material-Icons-Baseline.*"
                 ]
             }
