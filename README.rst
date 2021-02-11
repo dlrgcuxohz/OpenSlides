@@ -1,6 +1,19 @@
 ============
  OpenSlides
 ============
+Basiert akutell auf Version 3.3!
+
+Was haben wir für die DLRG-Jugend verändert?
+============================================
+Vorrangig haben wir am Theming geschraubt. Unser OpenSlides nutzt die Farben
+und Schriftarten nach dem Design der DLRG-Jugend. Außerdem haben wir ein paar
+Standardlogos eingebaut.
+
+Weitere Anpassungen an den Logos könnt ihr vornehemn, indem ihr diese als Administrator 
+unter "Dateien" hochladet und über das Kontext-Menü entsprechend fesetsetzt.
+
+Außerdem haben wir Grundeinstellungen in `docker/.env` für die Nutzung mit dem 
+DLRG-Mailserver bereitgestellt.
 
 What is OpenSlides?
 ===================
@@ -13,16 +26,11 @@ Installation
 ============
 
 The main deployment method is using Docker and docker-compose. You only need to
-have these tools installed and no further dependencies. If you want a simpler
-setup or are interested in developing, please refer to `development
-instructions
-<https://github.com/OpenSlides/OpenSlides/blob/master/DEVELOPMENT.rst>`_.
-
-Note: This is temporary and will be replaced with nice scripts...
+have these tools installed and no further dependencies.
 
 First, you have to clone this repository::
 
-    $ git clone https://github.com/OpenSlides/OpenSlides.git
+    $ git clone https://github.com/dlrgjugend/OpenSlides.git
     $ cd OpenSlides/docker/
 
 You need to build the Docker images for the client and server with this
@@ -42,9 +50,10 @@ credentials will be displayed on the login page.  Setting the admin password::
     $ cp secrets/adminsecret.env.example secrets/adminsecret.env
     $ vi secrets/adminsecret.env
 
-Afterwards, generate the configuration file::
+Afterwards, modify the environment file and generate the configuration file:
 
-    EXTERNAL_HTTP_PORT=8000 m4 docker-compose.yml.m4 > docker-compose.yml
+    $ vi .env
+    $ ( set -a; source .env; m4 docker-compose.yml.m4 ) > docker-compose.yml
 
 Finally, you can start the instance using ``docker-compose``::
 
