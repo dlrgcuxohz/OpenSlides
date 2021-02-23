@@ -349,7 +349,7 @@ def get_config_variables():
 
     yield ConfigVariable(
         name="logo_pdf_header_R",
-        default_value={"display_name": "PDF header logo (right)", "path": "assets/img/dlrg-jugend-vollfarbe.svg"},
+        default_value={"display_name": "PDF header logo (right)", "path": "assets/img/dlrg-jugend-vollfarbe.png"},
         input_type="static",
         weight=311,
         group="Logo",
