@@ -45,12 +45,12 @@ You must define a Django secret key in ``secrets/django.env``, for example::
 
 We also strongly recommend that you set a secure admin password but it is not
 strictly required.  If you do not set an admin password, the default login
-credentials will be displayed on the login page.  Setting the admin password::
+credentials will be displayed on the login page. Setting the admin password::
 
     $ cp secrets/adminsecret.env.example secrets/adminsecret.env
     $ vi secrets/adminsecret.env
 
-Afterwards, modify the environment file and generate the configuration file:
+Afterwards, modify the environment file and generate the configuration file::
 
     $ vi .env
     $ ( set -a; source .env; m4 docker-compose.yml.m4 ) > docker-compose.yml
