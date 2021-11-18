@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="projector",
             name="chyron_background_color",
-            field=models.CharField(default="#317796", max_length=7),
+            field=models.CharField(default="#d7005f", max_length=7),
         ),
         migrations.AddField(
             model_name="projector",

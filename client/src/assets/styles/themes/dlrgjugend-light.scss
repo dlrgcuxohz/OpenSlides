@@ -1,0 +1,9 @@
+@use '~@angular/material' as mat;
+@import '~assets/styles/color-palettes/dlrgjugend-flamingo';
+@import '~assets/styles/color-palettes/dlrgjugend-saphir';
+
+$dlrgjugend-primary: mat.define-palette($dlrgjugend-saphir);
+$dlrgjugend-accent: mat.define-palette($dlrgjugend-flamingo);
+$dlrgjugend-warn: mat.define-palette($dlrgjugend-flamingo);
+
+$dlrgjugend-light: mat.define-light-theme($dlrgjugend-primary, $dlrgjugend-accent, $dlrgjugend-warn);

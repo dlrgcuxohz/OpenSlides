@@ -16,17 +16,17 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="projector",
             name="header_background_color",
-            field=models.CharField(default="#317796", max_length=7),
+            field=models.CharField(default="#013154", max_length=7),
         ),
         migrations.AddField(
             model_name="projector",
             name="header_font_color",
-            field=models.CharField(default="#f5f5f5", max_length=7),
+            field=models.CharField(default="#ffffff", max_length=7),
         ),
         migrations.AddField(
             model_name="projector",
             name="header_h1_color",
-            field=models.CharField(default="#317796", max_length=7),
+            field=models.CharField(default="#d7005f", max_length=7),
         ),
         migrations.AddField(
             model_name="projector",
