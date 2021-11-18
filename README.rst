@@ -1,6 +1,19 @@
 ============
  OpenSlides
 ============
+Basiert akutell auf Version 3.3!
+
+Was haben wir für die DLRG-Jugend verändert?
+============================================
+Vorrangig haben wir am Theming geschraubt. Unser OpenSlides nutzt die Farben
+und Schriftarten nach dem Design der DLRG-Jugend. Außerdem haben wir ein paar
+Standardlogos eingebaut.
+
+Weitere Anpassungen an den Logos könnt ihr vornehemn, indem ihr diese als Administrator 
+unter "Dateien" hochladet und über das Kontext-Menü entsprechend fesetsetzt.
+
+Außerdem haben wir Grundeinstellungen in `docker/.env` für die Nutzung mit dem 
+DLRG-Mailserver bereitgestellt.
 
 What is OpenSlides?
 ===================
@@ -23,7 +36,7 @@ Get OpenSlides
 
 First, you have to clone this repository::
 
-    git clone https://github.com/OpenSlides/OpenSlides.git --recurse-submodules
+    git clone https://github.com/dlrgjugend/OpenSlides.git --recurse-submodules
     cd OpenSlides/
 
 **Note about migrating from version 3.3 or earlier**: With OpenSlides 3.4 submodules
