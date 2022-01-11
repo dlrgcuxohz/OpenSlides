@@ -1,7 +1,7 @@
 ============
  OpenSlides
 ============
-Basiert akutell auf Version 3.3!
+Basiert akutell auf Version 3.4!
 
 Was haben wir für die DLRG-Jugend verändert?
 ============================================
