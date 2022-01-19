@@ -1168,3 +1168,59 @@ class PasswordResetConfirmView(APIView):
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
             user = None
         return user
+
+
+class GetUserView(APIView):
+    """
+    View to retrieve users.
+
+    Use query parameters "id", "username", "email" or "number" to look for
+    users and retrieve their data.
+    """
+
+    http_method_names = ["get"]
+
+    def get(self, request, *args, **kwargs):
+        # Check permissions.
+        if not request.user.is_authenticated or not has_perm(
+            request.user, "users.can_manage"
+        ):
+            self.permission_denied(request)
+
+        # Parse parameters
+        params = request.GET
+        user_id = params.get("id", "0")
+        try:
+            user_id = int(user_id)
+        except ValueError:
+            raise ValidationError({"detail": "Invalid parameter user_id."})
+        email = params.get("email", "")
+        username = params.get("username", "")
+        number = params.get("number", "")
+
+        # Build queryset
+        query = User.objects.all()
+        if user_id:
+            query = query.filter(pk=user_id)
+        if username:
+            query = query.filter(username=username)
+        if email:
+            query = query.filter(email=email)
+        if number:
+            query = query.filter(number=number)
+
+        # Execute queryset
+        self.users = list(query)
+
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **context):
+        users_full_data = []
+        for user in self.users:
+            user_full_data = async_to_sync(element_cache.get_element_data)(
+                user.get_collection_string(), user.pk
+            )
+            user_full_data.pop("session_auth_hash")
+            users_full_data.append(user_full_data)
+        context.update({"users": users_full_data})
+        return context

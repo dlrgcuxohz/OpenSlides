@@ -15,6 +15,7 @@ from openslides.mediafiles.views import (
 )
 from openslides.motions.models import Motion
 from openslides.users.views import demo_mode_users, is_demo_mode
+from openslides.utils import logging
 from openslides.utils.cache import element_cache
 
 
@@ -198,7 +199,7 @@ class OS4Exporter:
 
         # Note: When returning self.all_data one has access to the original data to compare it to the export.
         # return {"all": self.all_data, "export": self.to_list_format()}
-        return self.to_list_format()
+        return self.data
 
     def set_model(self, collection, model):
         if model["id"] in self.data[collection]:
@@ -221,7 +222,9 @@ class OS4Exporter:
         return data
 
     def fill_all_data_dict(self):
-        self._all_data_dict = {}
+        self._all_data_dict = {
+            "chat_message": {},  # not exported
+        }
         for collection, models in self.all_data.items():
             self._all_data_dict[collection] = {model["id"]: model for model in models}
 
@@ -419,7 +422,6 @@ class OS4Exporter:
                 "is_pseudoanonymized",
                 "pollmethod",
                 "onehundred_percent_base",
-                "majority_method",
                 "votesvalid",
                 "votesinvalid",
                 "votescast",
@@ -446,7 +448,7 @@ class OS4Exporter:
             new["global_abstain"] = old.get("global_abstain", False)
 
             new["entitled_group_ids"] = old["groups_id"]
-            new["backend"] = "long"
+            new["backend"] = "fast"
             new["voted_ids"] = old["voted_id"]
             new["global_option_id"] = self.create_global_option(old)
             new["projection_ids"] = []
@@ -521,6 +523,7 @@ class OS4Exporter:
             new["read_group_ids"] = old["read_groups_id"]
             new["write_group_ids"] = old["write_groups_id"]
             new["meeting_id"] = 1
+            new["chat_message_ids"] = []
             self.set_model("chat_group", new)
 
     def migrate_assignments(self):
@@ -869,15 +872,24 @@ class OS4Exporter:
                 new["css_class"] = old["css_class"]
             else:
                 new["css_class"] = "lightblue"
-            new["restrictions"] = [
-                {
-                    "motions.can_see_internal": "motion.can_see_internal",
-                    "motions.can_manage_metadata": "motion.can_manage_metadata",
-                    "motions.can_manage": "motion.can_manage",
-                    "is_submitter": "is_submitter",
-                }[restriction]
-                for restriction in old["restriction"]
-            ]
+            new["weight"] = old["id"]
+
+            new["restrictions"] = []
+            restrictions_map = {
+                "motions.can_see_internal": "motion.can_see_internal",
+                "motions.can_manage_metadata": "motion.can_manage_metadata",
+                "motions.can_manage": "motion.can_manage",
+                "managers_only": "motion.can_manage",  # Should not exist any more since migration 0026, but does anyway...
+                "is_submitter": "is_submitter",
+            }
+            for restriction in old["restriction"]:
+                if restriction in restrictions_map:
+                    new["restrictions"].append(restrictions_map[restriction])
+                else:
+                    logging.getLogger(__name__).warn(
+                        f"Invalid restriction '{restriction}' for motion {old['id']} is ignored."
+                    )
+
             new["set_number"] = not old["dont_set_identifier"]
             new["merge_amendment_into_final"] = {
                 -1: "do_not_merge",
@@ -993,7 +1005,9 @@ class OS4Exporter:
             notes = old.get("notes", {}).get("motions/motion", {})
             for motion_id, note in notes.items():
                 motion_id = int(motion_id)
-                if not self.exists_model("motion", motion_id):
+                if not self.exists_model("motion", motion_id) or not isinstance(
+                    note.get("note"), str
+                ):
                     continue
 
                 new = {
@@ -1001,7 +1015,7 @@ class OS4Exporter:
                     "user_id": old["user_id"],
                     "content_object_id": f"motion/{motion_id}",
                     "note": note["note"],
-                    "star": note["star"],
+                    "star": note.get("star", False),
                     "meeting_id": 1,
                 }
                 motion = self.get_model("motion", motion_id)
@@ -1023,6 +1037,9 @@ class OS4Exporter:
                 "gender",
                 "email",
             )
+            # remove invalid genders
+            if new["gender"] not in ("male", "female", "diverse"):
+                new["gender"] = None
 
             new["is_physical_person"] = not old["is_committee"]
             new["password"] = ""
@@ -1145,6 +1162,7 @@ class OS4Exporter:
                 new, "vote_delegations_$_from_ids", old["vote_delegated_from_users_id"]
             )
             new["meeting_ids"] = [1]
+            new["chat_message_$_ids"] = []
 
             self.set_model("user", new)
 
@@ -1265,22 +1283,25 @@ class OS4Exporter:
                 projection_id = self.create_projection_from_projector_element(
                     element, i + 1, "current", old["id"]
                 )
-                new["current_projection_ids"].append(projection_id)
+                if projection_id > 0:
+                    new["current_projection_ids"].append(projection_id)
 
             for i, element in enumerate(old["elements_preview"]):
                 projection_id = self.create_projection_from_projector_element(
                     element, i + 1, "preview", old["id"]
                 )
-                new["preview_projection_ids"].append(projection_id)
+                if projection_id > 0:
+                    new["preview_projection_ids"].append(projection_id)
 
             flat_history = [
                 item for sublist in old["elements_history"] for item in sublist
             ]
-            for i, elements in enumerate(flat_history):
+            for i, element in enumerate(flat_history):
                 projection_id = self.create_projection_from_projector_element(
                     element, i + 1, "history", old["id"]
                 )
-                new["history_projection_ids"].append(projection_id)
+                if projection_id > 0:
+                    new["history_projection_ids"].append(projection_id)
 
             if old["reference_projector_id"] == old["id"]:
                 self.meeting["reference_projector_id"] = old["id"]
@@ -1298,7 +1319,10 @@ class OS4Exporter:
     def create_projection_from_projector_element(
         self, element, weight, type, projector_id
     ):
-        """type can be "current", "preview" or "history" """
+        """
+        type can be "current", "preview" or "history"
+        registers the newly created projection and returns its id or returns -1 in case something went wrong
+        """
         projection = {
             "id": self.projection_id_counter,
             "stable": element.get("stable", True),
@@ -1338,18 +1362,22 @@ class OS4Exporter:
             id = 1
             projection["content_object_id"] = "meeting/1"
             projection["type"] = "current_speaker_chyron"
+        elif collection == "core/clock":
+            # somehow the clock got into the preview/history, just ignore
+            return -1
         else:
             raise OS4ExporterException(f"Unknown slide {collection}")
 
+        if not self.exists_model(collection, id):
+            return -1
+        content_object = self.get_model(collection, id)
         if collection != "user":
-            content_object = self.get_model(collection, id)
             content_object["projection_ids"].append(projection["id"])
         else:
-            user = self.get_model(collection, id)
-            if not user["projection_$_ids"]:
-                user["projection_$_ids"] = ["1"]
-                user["projection_$1_ids"] = []
-            user["projection_$1_ids"].append(projection["id"])
+            if not content_object["projection_$_ids"]:
+                content_object["projection_$_ids"] = ["1"]
+                content_object["projection_$1_ids"] = []
+            content_object["projection_$1_ids"].append(projection["id"])
 
         self.projection_id_counter += 1
         self.set_model("projection", projection)
@@ -1405,9 +1433,30 @@ class OS4Exporter:
         self.meeting["conference_auto_connect_next_speakers"] = configs[
             "general_system_conference_auto_connect_next_speakers"
         ]
+        self.meeting["conference_enable_helpdesk"] = configs[
+            "general_system_conference_enable_helpdesk"
+        ]
 
-        # TODO: missing setting in OS4
-        # self.meeting["conference_enable_helpdesk"] = configs["general_system_conference_enable_helpdesk"]
+        self.meeting["applause_enable"] = configs["general_system_applause_enable"]
+        self.meeting["applause_type"] = configs["general_system_applause_type"]
+        self.meeting["applause_show_level"] = configs[
+            "general_system_applause_show_level"
+        ]
+        self.meeting["applause_min_amount"] = configs[
+            "general_system_applause_min_amount"
+        ]
+        self.meeting["applause_max_amount"] = configs[
+            "general_system_applause_max_amount"
+        ]
+        self.meeting["applause_particle_image_url"] = configs[
+            "general_system_applause_particle_image"
+        ]
+        self.meeting["applause_timeout"] = configs[
+            "general_system_stream_applause_timeout"
+        ]
+        self.meeting["applause_timeout"] = configs[
+            "general_system_stream_applause_timeout"
+        ]
 
         self.meeting["projector_countdown_default_time"] = configs[
             "projector_default_countdown"
@@ -1525,7 +1574,10 @@ class OS4Exporter:
         self.meeting["motions_recommendation_text_mode"] = configs[
             "motions_recommendation_text_mode"
         ]
-        self.meeting["motions_default_sorting"] = configs["motions_motions_sorting"]
+        self.meeting["motions_default_sorting"] = {
+            "identifier": "number",
+            "weight": "weight",
+        }[configs["motions_motions_sorting"]]
         self.meeting["motions_number_type"] = configs["motions_identifier"]
         self.meeting["motions_number_min_digits"] = configs[
             "motions_identifier_min_digits"
@@ -1572,9 +1624,7 @@ class OS4Exporter:
         self.meeting["motion_poll_default_100_percent_base"] = configs[
             "motion_poll_default_100_percent_base"
         ]
-        self.meeting["motion_poll_default_majority_method"] = configs[
-            "motion_poll_default_majority_method"
-        ]
+        self.meeting["motion_poll_default_backend"] = "fast"
 
         group_ids = configs["motion_poll_default_groups"]
         for group_id in group_ids:
@@ -1627,9 +1677,7 @@ class OS4Exporter:
         self.meeting["assignment_poll_default_100_percent_base"] = configs[
             "assignment_poll_default_100_percent_base"
         ]
-        self.meeting["assignment_poll_default_majority_method"] = configs[
-            "assignment_poll_default_majority_method"
-        ]
+        self.meeting["assignment_poll_default_backend"] = "fast"
 
         group_ids = configs["assignment_poll_default_groups"]
         for group_id in group_ids:
@@ -1643,7 +1691,7 @@ class OS4Exporter:
         self.meeting["poll_default_type"] = "analog"
         self.meeting["poll_default_method"] = "Y"
         self.meeting["poll_default_100_percent_base"] = "YNA"
-        self.meeting["poll_default_majority_method"] = "simple"
+        self.meeting["poll_default_backend"] = "fast"
         self.meeting["poll_default_group_ids"] = []
         self.meeting["poll_couple_countdown"] = True
 
@@ -1675,6 +1723,7 @@ class OS4Exporter:
             "assignment_candidate",
             "personal_note",
             "chat_group",
+            "chat_message",
         ):
             self.meeting[f"{collection}_ids"] = [
                 x["id"] for x in self.iter_collection(collection)
@@ -1690,6 +1739,7 @@ class OS4Exporter:
 
         self.meeting["committee_id"] = None
         self.meeting["default_meeting_for_committee_id"] = None
+        self.meeting["is_active_in_organization_id"] = None
         self.meeting["organization_tag_ids"] = []
         self.meeting["present_user_ids"] = [
             x["id"]
