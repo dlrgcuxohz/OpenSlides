@@ -7,20 +7,10 @@ if [[ -z "$EXTERNAL_HTTP_PORT" ]] && [[ -z "$EXTERNAL_HTTPS_PORT" ]]; then
     exit 1
 fi
 
-if [[ -f "/certs/key.pem" ]] && [[ -f "/certs/cert.pem" ]]; then
-    certs_exists=1
-fi
-
-if [[ -n "$EXTERNAL_HTTPS_PORT" ]] && [[ -z "$certs_exists" ]]; then
-    echo "Configured https, but no certificates found. Aborting"
-    exit 1
-fi
-
 # config: https
 if [[ -n "$EXTERNAL_HTTPS_PORT" ]] ; then
     cat <<EOF > /etc/caddy/endpoint
-https://:8001 {
-    tls /certs/cert.pem /certs/key.pem
+https://$INSTANCE_DOMAIN:8001 {
 EOF
     echo "Configured https"
 fi
