@@ -27,17 +27,18 @@ Installation
 ============
 
 The main deployment method is using Git, Docker and Docker Compose. You only need
-to have these tools installed and no further dependencies. If you want a simpler
+to have these tools installed and no further dependencies (m4 may not come preinstalled on your system). If you want a simpler
 setup or are interested in developing, please refer to `development
 instructions <DEVELOPMENT.rst>`_.
 
 Get OpenSlides
 --------------
 
-First, you have to clone this repository::
+First, you have to clone this repository, then checkout the latest stable branch::
 
     git clone https://github.com/dlrgjugend/OpenSlides.git --recurse-submodules
     cd OpenSlides/
+    git checkout stable/3.4.x
 
 **Note about migrating from version 3.3 or earlier**: With OpenSlides 3.4 submodules
 and a Docker setup were introduced. If you ran into problems try to delete your
@@ -87,7 +88,7 @@ Finally, you can start the instance using ``docker-compose``::
 
 OpenSlides is accessible on https://localhost/ (or https, if configured).
 
-Use can also use daemonized instance::
+You can also use daemonized instance::
 
     docker-compose up -d
     docker-compose logs
