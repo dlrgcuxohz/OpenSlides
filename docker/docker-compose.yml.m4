@@ -132,9 +132,11 @@ services:
     networks:
       - front
       - back
+    volumes:
+      - "proxydata:/data"
     ports:
-      ifelse(EXTERNAL_HTTP_PORT,,,- "127.0.0.1:EXTERNAL_HTTP_PORT:8000")
-      ifelse(EXTERNAL_HTTPS_PORT,,,- "127.0.0.1:EXTERNAL_HTTPS_PORT:8001")
+      ifelse(EXTERNAL_HTTP_PORT,,,- "EXTERNAL_HTTP_PORT:8000")
+      ifelse(EXTERNAL_HTTPS_PORT,,,- "EXTERNAL_HTTPS_PORT:8001")
 
   server:
     << : *default-osserver
@@ -272,6 +274,7 @@ volumes:
   dbdata1:
 ifelse(read_env(`PGNODE_2_ENABLED'), 1, `  dbdata2:')
 ifelse(read_env(`PGNODE_3_ENABLED'), 1, `  dbdata3:')
+  proxydata:
 
 networks:
   front:
