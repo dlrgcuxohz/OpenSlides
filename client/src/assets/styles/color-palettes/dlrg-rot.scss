@@ -1,0 +1,33 @@
+// https://material.io/design/color/the-color-system.html#tools-for-picking-colors
+$dlrg-rot: (
+    50: #ffeaed,
+    100: #ffcbce,
+    200: #fb9691,
+    300: #f46a66,
+    400: #ff443c,
+    500: #ff2d17,
+    600: #f51d1a,
+    700: #e30615,
+    800: #d6000b,
+    900: #c90000,
+    A100: #f6bdde,
+    A200: #f492c8,
+    A400: #f33f9d,
+    A700: #cc0a7c,
+    contrast: (
+        50: #000000,
+        100: #000000,
+        200: #000000,
+        300: #000000,
+        400: #ffffff,
+        500: #ffffff,
+        600: #ffffff,
+        700: #ffffff,
+        800: #ffffff,
+        900: #ffffff,
+        A100: #000000,
+        A200: #000000,
+        A400: #000000,
+        A700: #000000,
+    )
+);

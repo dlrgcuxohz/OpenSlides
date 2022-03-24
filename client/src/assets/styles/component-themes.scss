@@ -20,6 +20,9 @@ $narrow-spacing: (
 /** Import DLRG-Jugend branding */
 @import '~assets/styles/themes/dlrgjugend-light.scss';
 
+/** Import DLRG branding */
+@import '~assets/styles/themes/dlrg-light.scss';
+
 /** Global component style definition */
 @import '~assets/styles/global-components-style.scss';
 
@@ -81,6 +84,13 @@ $narrow-spacing: (
     @include mat.all-component-themes($openslides-default-light);
     @include openslides-components-theme($openslides-default-light);
     $ngrid-material-theme: pbl-light-theme($openslides-default-light);
+    @include pbl-ngrid-theme(map-merge($ngrid-material-theme, $narrow-spacing));
+}
+
+.openslides-dlrg-light-theme {
+    @include mat.all-component-themes($dlrg-light);
+    @include openslides-components-theme($dlrg-light);
+    $ngrid-material-theme: pbl-light-theme($dlrg-light);
     @include pbl-ngrid-theme(map-merge($ngrid-material-theme, $narrow-spacing));
 }
 

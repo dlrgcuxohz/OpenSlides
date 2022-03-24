@@ -1,0 +1,33 @@
+// https://material.io/design/color/the-color-system.html#tools-for-picking-colors
+$dlrg-gelb: (
+    50: #fffde5,
+    100: #fffabf,
+    200: #fef694,
+    300: #fdf166,
+    400: #fbed3c,
+    500: #ffee00,
+    600: #ffda00,
+    700: #ffc100,
+    800: #ffa800,
+    900: #ff7b00,
+    A100: #ffecb3,
+    A200: #ffe082,
+    A400: #ffca28,
+    A700: #ffa000,
+    contrast: (
+        50: #000000,
+        100: #000000,
+        200: #000000,
+        300: #000000,
+        400: #000000,
+        500: #000000,
+        600: #000000,
+        700: #ffffff,
+        800: #ffffff,
+        900: #ffffff,
+        A100: #000000,
+        A200: #000000,
+        A400: #000000,
+        A700: #ffffff,
+    )
+);

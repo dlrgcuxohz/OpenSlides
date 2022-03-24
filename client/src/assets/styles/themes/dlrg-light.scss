@@ -1,0 +1,9 @@
+@use '~@angular/material' as mat;
+@import '~assets/styles/color-palettes/dlrg-rot';
+@import '~assets/styles/color-palettes/dlrg-gelb';
+
+$dlrg-primary: mat.define-palette($dlrg-rot);
+$dlrg-accent: mat.define-palette(mat.$amber-palette);
+$dlrg-warn: mat.define-palette(mat.$orange-palette, 700, 300, 900);
+
+$dlrg-light: mat.define-light-theme($dlrg-primary, $dlrg-accent, $dlrg-warn);

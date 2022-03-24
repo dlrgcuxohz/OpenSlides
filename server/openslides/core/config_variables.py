@@ -280,10 +280,14 @@ def get_config_variables():
 
     yield ConfigVariable(
         name="openslides_theme",
-        default_value="openslides-dlrgjugend-light-theme",
+        default_value="openslides-dlrg-light-theme",
         input_type="choice",
         label="OpenSlides Theme",
         choices=(
+            {
+                "value": "openslides-dlrg-light-theme",
+                "display_name": "DLRG",
+            },
             {
                 "value": "openslides-dlrgjugend-light-theme",
                 "display_name": "DLRG-Jugend",
@@ -402,7 +406,7 @@ def get_config_variables():
 
     yield ConfigVariable(
         name="logo_projector_main",
-        default_value={"display_name": "Projector logo", "path": "assets/img/dlrg-jugend-weiß.svg"},
+        default_value={"display_name": "Projector logo", "path": "assets/img/dlrg-weiß.svg"},
         input_type="static",
         weight=301,
         group="Logo",
@@ -439,7 +443,7 @@ def get_config_variables():
 
     yield ConfigVariable(
         name="logo_pdf_header_R",
-        default_value={"display_name": "PDF header logo (right)", "path": "assets/img/dlrg-jugend-vollfarbe.png"},
+        default_value={"display_name": "PDF header logo (right)", "path": "assets/img/dlrg-vollfarbe.png"},
         input_type="static",
         weight=311,
         group="Logo",
@@ -493,7 +497,7 @@ def get_config_variables():
         name="font_regular",
         default_value={
             "display_name": "Font regular",
-            "default": "assets/fonts/mulish-v3-latin-400.woff",
+            "default": "assets/fonts/dlrg-univers.woff",
             "path": "",
         },
         input_type="static",
@@ -506,7 +510,7 @@ def get_config_variables():
         name="font_italic",
         default_value={
             "display_name": "Font italic",
-            "default": "assets/fonts/mulish-v3-latin-400italic.woff",
+            "default": "assets/fonts/dlrg-univers.woff",
             "path": "",
         },
         input_type="static",
@@ -519,7 +523,7 @@ def get_config_variables():
         name="font_bold",
         default_value={
             "display_name": "Font bold",
-            "default": "assets/fonts/mulish-v3-latin-500.woff",
+            "default": "assets/fonts/dlrg-univers-bold.woff",
             "path": "",
         },
         input_type="static",
@@ -532,7 +536,7 @@ def get_config_variables():
         name="font_bold_italic",
         default_value={
             "display_name": "Font bold italic",
-            "default": "assets/fonts/mulish-v3-latin-500italic.woff",
+            "default": "assets/fonts/dlrg-univers-bold.woff",
             "path": "",
         },
         input_type="static",
